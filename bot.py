@@ -1,4 +1,3 @@
-# bot.py
 import os
 import asyncio
 import logging
@@ -9,13 +8,12 @@ import discord
 from discord.ext import commands
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-import keep_alive  # fichier Flask
+import keep_alive  # Flask keep-alive
 
 # --- Config & logging ---
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 CHANNEL_ID = int(os.getenv("CHANNEL_ID", "0"))
-API_URL = os.getenv("API_URL", "").strip()
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Brussels")
 REPORT_DAY = os.getenv("REPORT_DAY", "mon")
 REPORT_HOUR = int(os.getenv("REPORT_HOUR", "9"))
@@ -28,6 +26,9 @@ logger = logging.getLogger("raid-bot")
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# --- Keep alive ---
+keep_alive.keep_alive()
 
 # --- Helper: fetch with retries ---
 async def fetch_json(url, session, retries=2, timeout=10):
@@ -134,9 +135,6 @@ async def testapi_cmd(ctx):
         await ctx.send("❌ Impossible de joindre l'API ou aucune donnée.")
     else:
         await ctx.send(f"✅ API répond. Nombre de joueurs trouvés: {len(data.get('players', []))}")
-
-# --- Keep alive for Render ---
-keep_alive.keep_alive()
 
 # --- Run bot ---
 if __name__ == "__main__":
